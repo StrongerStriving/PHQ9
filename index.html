@@ -3,260 +3,275 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Theo dõi Mood Chart</title>
+    <title>PHQ-9 Test</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        :root {
+            --primary-color: #4a90e2;
+            --secondary-color: #f5a623;
+            --background-color: #f0f4f8;
+            --text-color: #333;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: var(--text-color);
+            background-color: var(--background-color);
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        h1, h2, h3 {
+            color: var(--primary-color);
+        }
+        input[type="text"], input[type="date"] {
+            width: 100%;
+            padding: 10px;
+            margin: 5px 0 20px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        button {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            margin: 10px 10px 10px 0;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            background-color: #357abd;
+        }
+        .legend {
+            background-color: white;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+        .question {
+            background-color: white;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 15px;
+            margin-bottom: 15px;
+        }
+        .options {
+            display: flex;
+            justify-content: flex-start;
+            margin-top: 10px;
+        }
+        .option {
+            margin-right: 10px;
+        }
+        .option input[type="radio"] {
+            display: none;
+        }
+        .option label {
+            display: inline-block;
+            width: 30px;
+            height: 30px;
+            text-align: center;
+            line-height: 30px;
+            border: 2px solid var(--primary-color);
+            border-radius: 50%;
+            color: var(--primary-color);
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .option input[type="radio"]:checked + label {
+            background-color: var(--primary-color);
+            color: white;
+        }
+        #results {
+            background-color: white;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 15px;
+            margin-top: 20px;
+        }
+        #chart {
+            margin-top: 20px;
+            background-color: white;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 15px;
+        }
+    </style>
 </head>
-<body class="bg-gray-100 p-8">
-    <div class="max-w-4xl mx-auto bg-white p-8 rounded-lg shadow-md">
-        <h1 class="text-3xl font-bold mb-6 text-center">Theo dõi Mood Chart</h1>
-        
-        <div class="mb-6 p-4 bg-yellow-100 rounded-lg">
-            <p class="font-semibold">Chú thích mức độ:</p>
-            <ul class="list-disc list-inside">
-                <li>0: Không</li>
-                <li>1: Nhẹ</li>
-                <li>2: Trung bình</li>
-                <li>3: Nghiêm trọng</li>
-            </ul>
-        </div>
-        
-        <form id="moodForm" class="space-y-6 mb-8">
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                    <label for="date" class="block mb-1">Ngày:</label>
-                    <input type="date" id="date" name="date" required class="w-full p-2 border rounded">
-                </div>
-                <div>
-                    <label for="sleepTime" class="block mb-1">Thời gian ngủ (giờ):</label>
-                    <input type="number" id="sleepTime" name="sleepTime" min="0" max="24" step="0.5" required class="w-full p-2 border rounded">
-                </div>
-            </div>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                    <label for="depression" class="block mb-1">Mức độ trầm buồn:</label>
-                    <select id="depression" name="depression" required class="w-full p-2 border rounded">
-                        <option value="0">Không</option>
-                        <option value="1">Nhẹ</option>
-                        <option value="2">Trung bình</option>
-                        <option value="3">Nghiêm trọng</option>
-                    </select>
-                </div>
-                <div>
-                    <label for="mania" class="block mb-1">Mức độ hưng phấn:</label>
-                    <select id="mania" name="mania" required class="w-full p-2 border rounded">
-                        <option value="0">Không</option>
-                        <option value="1">Nhẹ</option>
-                        <option value="2">Trung bình</option>
-                        <option value="3">Nghiêm trọng</option>
-                    </select>
-                </div>
-                <div>
-                    <label for="irritability" class="block mb-1">Mức độ cáu gắt:</label>
-                    <select id="irritability" name="irritability" required class="w-full p-2 border rounded">
-                        <option value="0">Không</option>
-                        <option value="1">Nhẹ</option>
-                        <option value="2">Trung bình</option>
-                        <option value="3">Nghiêm trọng</option>
-                    </select>
-                </div>
-                <div>
-                    <label for="anxiety" class="block mb-1">Mức độ lo âu:</label>
-                    <select id="anxiety" name="anxiety" required class="w-full p-2 border rounded">
-                        <option value="0">Không</option>
-                        <option value="1">Nhẹ</option>
-                        <option value="2">Trung bình</option>
-                        <option value="3">Nghiêm trọng</option>
-                    </select>
-                </div>
-            </div>
-            <div>
-                <label for="notes" class="block mb-1">Ghi chú:</label>
-                <textarea id="notes" name="notes" rows="3" class="w-full p-2 border rounded"></textarea>
-            </div>
-            <button type="submit" class="w-full bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600 transition duration-300">Thêm dữ liệu</button>
-        </form>
-        
-        <div class="mb-8">
-            <h2 class="text-2xl font-semibold mb-4">Biểu đồ Mood</h2>
-            <canvas id="moodChart"></canvas>
-        </div>
-        
-        <div>
-            <h2 class="text-2xl font-semibold mb-4">Lịch sử Mood</h2>
-            <div id="moodHistory" class="space-y-4"></div>
-        </div>
-        
-        <div class="mt-8">
-            <button id="clearDataBtn" class="bg-red-500 text-white py-2 px-4 rounded hover:bg-red-600 transition duration-300">Xóa tất cả dữ liệu</button>
-        </div>
+<body>
+    <h1>PHQ-9 Test (Phiên bản tiếng Việt)</h1>
+    
+    <div>
+        <label for="name">Họ tên:</label>
+        <input type="text" id="name" placeholder="Nhập họ tên của bạn">
+    </div>
+    <div>
+        <label for="pid">PID:</label>
+        <input type="text" id="pid" placeholder="Nhập PID của bạn">
+    </div>
+    <div>
+        <label for="date">Ngày làm test:</label>
+        <input type="date" id="date">
     </div>
 
+    <h2>Bảng câu hỏi PHQ-9</h2>
+    
+    <div class="legend">
+        <h3>Trong 2 tuần vừa qua, bạn có thường xuyên gặp phải những vấn đề sau đây không?</h3>
+        <p><strong>0</strong> - Không có</p>
+        <p><strong>1</strong> - Có một vài ngày</p>
+        <p><strong>2</strong> - Có hơn một nửa số ngày</p>
+        <p><strong>3</strong> - Gần như mỗi ngày</p>
+    </div>
+
+    <div id="questions"></div>
+
+    <button onclick="calculateScore()">Tính điểm</button>
+    <button onclick="clearData()" style="background-color: #e74c3c;">Xóa dữ liệu</button>
+
+    <div id="results"></div>
+    <canvas id="chart"></canvas>
+
     <script>
-        let moodData = [];
-        
-        // Hàm để lưu dữ liệu vào localStorage
-        function saveMoodData() {
-            localStorage.setItem('moodData', JSON.stringify(moodData));
-        }
-        
-        // Hàm để tải dữ liệu từ localStorage
-        function loadMoodData() {
-            const storedData = localStorage.getItem('moodData');
-            if (storedData) {
-                moodData = JSON.parse(storedData);
-            }
-        }
-        
-        // Tải dữ liệu khi trang được load
-        loadMoodData();
+        const questions = [
+            "Ít hứng thú hoặc ít thích thú trong việc làm",
+            "Cảm thấy chán nản, trầm cảm, hay tuyệt vọng",
+            "Khó đi vào giấc ngủ hoặc khó ngủ liên tục, hoặc ngủ quá nhiều",
+            "Cảm thấy mệt mỏi hoặc năng lượng suy giảm",
+            "Ăn ít ngon miệng hoặc ăn quá nhiều",
+            "Cảm thấy không tốt về bản thân - hoặc cảm thấy mình là một người thất bại hay đã làm cho bản thân hoặc gia đình thất vọng",
+            "Khó tập trung làm việc, như đọc báo hay xem TV",
+            "Di chuyển hoặc nói chuyện chậm chạp đến mức những người khác có thể nhận thấy? Hoặc ngược lại - cảm thấy bồn chồn hoặc restless đến mức bạn di chuyển nhiều hơn bình thường",
+            "Có ý nghĩ rằng mình thà chết đi còn hơn hoặc có ý nghĩ tự làm tổn thương bản thân"
+        ];
 
         let chart;
 
+        function initQuestions() {
+            const questionsDiv = document.getElementById('questions');
+            questions.forEach((q, index) => {
+                questionsDiv.innerHTML += `
+                    <div class="question">
+                        <p><strong>${index + 1}.</strong> ${q}</p>
+                        <div class="options">
+                            ${[0, 1, 2, 3].map(value => `
+                                <div class="option">
+                                    <input type="radio" id="q${index}_${value}" name="q${index}" value="${value}">
+                                    <label for="q${index}_${value}">${value}</label>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        function calculateScore() {
+            let totalScore = 0;
+            for (let i = 0; i < 9; i++) {
+                const selectedOption = document.querySelector(`input[name="q${i}"]:checked`);
+                if (selectedOption) {
+                    totalScore += parseInt(selectedOption.value);
+                }
+            }
+
+            const results = {
+                date: document.getElementById('date').value,
+                name: document.getElementById('name').value,
+                pid: document.getElementById('pid').value,
+                score: totalScore
+            };
+
+            displayResults(results);
+            saveResults(results);
+            updateChart();
+        }
+
+        function displayResults(results) {
+            const resultsDiv = document.getElementById('results');
+            resultsDiv.innerHTML = `
+                <h3>Kết quả:</h3>
+                <p><strong>Tổng điểm PHQ-9:</strong> ${results.score} - ${getDepressionSeverity(results.score)}</p>
+                <p>${getRecommendation(results.score)}</p>
+            `;
+        }
+
+        function getDepressionSeverity(score) {
+            if (score >= 0 && score <= 4) return "Không có triệu chứng trầm cảm";
+            if (score >= 5 && score <= 9) return "Triệu chứng trầm cảm nhẹ";
+            if (score >= 10 && score <= 14) return "Triệu chứng trầm cảm vừa";
+            if (score >= 15 && score <= 19) return "Triệu chứng trầm cảm vừa nặng";
+            if (score >= 20) return "Triệu chứng trầm cảm nặng";
+        }
+
+        function getRecommendation(score) {
+            if (score >= 0 && score <= 4) return "Không cần can thiệp.";
+            if (score >= 5 && score <= 14) return "Nên theo dõi và tái đánh giá.";
+            if (score >= 15) return "Cần can thiệp tích cực. Nên tham khảo ý kiến bác sĩ chuyên khoa.";
+        }
+
+        function saveResults(results) {
+            let savedResults = JSON.parse(localStorage.getItem('phq9Results')) || [];
+            savedResults.push(results);
+            localStorage.setItem('phq9Results', JSON.stringify(savedResults));
+        }
+
         function updateChart() {
-            const ctx = document.getElementById('moodChart').getContext('2d');
-            
+            const savedResults = JSON.parse(localStorage.getItem('phq9Results')) || [];
+            const ctx = document.getElementById('chart').getContext('2d');
+
             if (chart) {
                 chart.destroy();
             }
 
-            const sortedData = moodData.sort((a, b) => new Date(a.date) - new Date(b.date));
-            const labels = sortedData.map(entry => entry.date);
-            const depressionData = sortedData.map(entry => entry.depression);
-            const maniaData = sortedData.map(entry => entry.mania);
-            const irritabilityData = sortedData.map(entry => entry.irritability);
-            const anxietyData = sortedData.map(entry => entry.anxiety);
-            const sleepData = sortedData.map(entry => entry.sleepTime);
-
             chart = new Chart(ctx, {
                 type: 'line',
                 data: {
-                    labels: labels,
-                    datasets: [
-                        {
-                            label: 'Trầm buồn',
-                            data: depressionData,
-                            borderColor: 'rgb(54, 162, 235)',
-                            tension: 0.1,
-                            yAxisID: 'y'
-                        },
-                        {
-                            label: 'Hưng phấn',
-                            data: maniaData,
-                            borderColor: 'rgb(255, 99, 132)',
-                            tension: 0.1,
-                            yAxisID: 'y'
-                        },
-                        {
-                            label: 'Cáu gắt',
-                            data: irritabilityData,
-                            borderColor: 'rgb(255, 159, 64)',
-                            tension: 0.1,
-                            yAxisID: 'y'
-                        },
-                        {
-                            label: 'Lo âu',
-                            data: anxietyData,
-                            borderColor: 'rgb(75, 192, 192)',
-                            tension: 0.1,
-                            yAxisID: 'y'
-                        },
-                        {
-                            label: 'Thời gian ngủ',
-                            data: sleepData,
-                            borderColor: 'rgb(153, 102, 255)',
-                            tension: 0.1,
-                            yAxisID: 'y1'
-                        }
-                    ]
+                    labels: savedResults.map(r => r.date),
+                    datasets: [{
+                        label: 'Điểm PHQ-9',
+                        data: savedResults.map(r => r.score),
+                        borderColor: '#4a90e2',
+                        fill: false
+                    }]
                 },
                 options: {
                     responsive: true,
+                    title: {
+                        display: true,
+                        text: 'Điểm PHQ-9 theo thời gian',
+                        fontSize: 18,
+                        fontColor: '#333'
+                    },
                     scales: {
-                        y: {
-                            beginAtZero: true,
-                            max: 3,
-                            title: {
-                                display: true,
-                                text: 'Mức độ (0-3)'
+                        yAxes: [{
+                            ticks: {
+                                beginAtZero: true,
+                                max: 27
                             }
-                        },
-                        y1: {
-                            beginAtZero: true,
-                            position: 'right',
-                            title: {
-                                display: true,
-                                text: 'Thời gian ngủ (giờ)'
-                            },
-                            grid: {
-                                drawOnChartArea: false
-                            }
-                        }
+                        }]
                     }
                 }
             });
         }
 
-        function updateMoodHistory() {
-            const historyContainer = document.getElementById('moodHistory');
-            historyContainer.innerHTML = '';
-
-            const sortedData = moodData.sort((a, b) => new Date(b.date) - new Date(a.date));
-
-            sortedData.forEach(entry => {
-                const entryElement = document.createElement('div');
-                entryElement.className = 'bg-gray-50 p-4 rounded-lg';
-                entryElement.innerHTML = `
-                    <p class="font-semibold">Ngày: ${entry.date}</p>
-                    <p>Thời gian ngủ: ${entry.sleepTime} giờ</p>
-                    <p>Trầm buồn: ${getMoodLabel(entry.depression)}</p>
-                    <p>Hưng phấn: ${getMoodLabel(entry.mania)}</p>
-                    <p>Cáu gắt: ${getMoodLabel(entry.irritability)}</p>
-                    <p>Lo âu: ${getMoodLabel(entry.anxiety)}</p>
-                    <p>Ghi chú: ${entry.notes || 'Không có ghi chú'}</p>
-                `;
-                historyContainer.appendChild(entryElement);
-            });
-        }
-
-        function getMoodLabel(value) {
-            const labels = ['Không', 'Nhẹ', 'Trung bình', 'Nghiêm trọng'];
-            return labels[value];
-        }
-
-        document.getElementById('moodForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            const formData = new FormData(this);
-            const newEntry = {
-                date: formData.get('date'),
-                sleepTime: parseFloat(formData.get('sleepTime')),
-                depression: parseInt(formData.get('depression')),
-                mania: parseInt(formData.get('mania')),
-                irritability: parseInt(formData.get('irritability')),
-                anxiety: parseInt(formData.get('anxiety')),
-                notes: formData.get('notes')
-            };
-
-            moodData.push(newEntry);
-            saveMoodData(); // Lưu dữ liệu sau khi thêm mới
-
-            updateChart();
-            updateMoodHistory();
-            this.reset();
-        });
-
-        // Thêm sự kiện cho nút xóa dữ liệu
-        document.getElementById('clearDataBtn').addEventListener('click', function() {
-            if (confirm('Bạn có chắc chắn muốn xóa tất cả dữ liệu?')) {
-                moodData = [];
-                saveMoodData();
-                updateChart();
-                updateMoodHistory();
+        function clearData() {
+            localStorage.removeItem('phq9Results');
+            document.getElementById('results').innerHTML = '';
+            document.getElementById('name').value = '';
+            document.getElementById('pid').value = '';
+            document.getElementById('date').value = '';
+            document.querySelectorAll('input[type="radio"]').forEach(radio => radio.checked = false);
+            if (chart) {
+                chart.destroy();
             }
-        });
+        }
 
+        initQuestions();
         updateChart();
-        updateMoodHistory();
     </script>
 </body>
 </html>
